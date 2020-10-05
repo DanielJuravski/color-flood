@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from termcolor import colored
 from sty import fg, bg, ef, rs
+from copy import deepcopy
 
 
 M = 18
@@ -15,7 +16,9 @@ WIN_TURNS = 21
 
 class Game:
     def __init__(self):
+        self.board_history = []
         self.board = self.init_board()
+        self.board_history.append(deepcopy(self.board))
         self.possible_directions = [(-1, 0), (0, +1), (+1, 0), (0, -1)]
 
     def init_board(self):
@@ -27,10 +30,22 @@ class Game:
 
     def play(self):
         turn_current = 0
+        self.print_board()
 
         while not self.is_game_end():
-            self.play_turn(turn_current)
-            turn_current += 1
+            user_input = self.get_user_input(turn_current)
+
+            if user_input == 'u':
+                if len(self.board_history) > 1:
+                    self.board_history.pop()
+                    self.board = deepcopy(self.board_history[-1])
+                    turn_current -= 1
+            else:
+                self.spread_colors(user_input)
+                turn_current += 1
+                self.board_history.append(deepcopy(self.board))
+
+            self.print_board()
 
         self.game_end(turn_current)
 
@@ -45,16 +60,14 @@ class Game:
         else:
             print("Game Over, You Lose!")
 
-    def play_turn(self, turn_current):
-        self.print_board()
+    def get_user_input(self, turn_current):
+        is_input_valid = False
+        while not is_input_valid:
+            user_input = input("{0}/{1} Moves. Insert color:".format(turn_current, WIN_TURNS))
+            if user_input in COLORS or user_input == 'u':
+                is_input_valid = True
 
-        is_new_color_legal = False
-        while not is_new_color_legal:
-            new_color = input("{0}/{1} Moves. Insert color:".format(turn_current, WIN_TURNS))
-            if new_color in COLORS:
-                is_new_color_legal = True
-
-        self.spread_colors(new_color)
+        return user_input
 
     def print_board(self):
         for row in self.board:
