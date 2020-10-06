@@ -1,3 +1,6 @@
+import sys
+import argparse
+
 COLORS_MAP = {'r': '\033[41m', 'b': '\033[44m', 'g': '\033[42m', 'y': '\033[43m'}
 CEND = '\033[0m'
 
@@ -20,3 +23,16 @@ class CLI:
             for cell in line:
                 print(cell, end='')
             print()
+
+    def get_conf(self):
+        parser = argparse.ArgumentParser(description='Color Flood Game Configuration')
+        parser.add_argument('-m', type=int, help='Number of rows in the board', required=False, default=18)
+        parser.add_argument('-n', type=int, help='Number of columns in the board', required=False,  default=18)
+        parser.add_argument('-w', '--win-turns', type=int, help='Maximum number of turns to win', required=False,  default=21)
+        parser.add_argument('-c', '--colors', type=list, help='Game colors', required=False,  default=['r', 'b', 'g', 'y'])
+        parser.add_argument('-j', '--jokers', type=int, help='Number of joker cells', required=False,  default=0)
+
+        args = vars(parser.parse_args())
+
+        return args
+

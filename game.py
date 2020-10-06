@@ -2,12 +2,6 @@ import numpy as np
 from copy import deepcopy
 from fe import CLI
 
-M = 18
-N = 18
-COLORS = ['r', 'b', 'g', 'y']
-WIN_TURNS = 21
-JOKER_CELLS = [(1, 1), (2, 2)]
-
 
 class Game:
     """
@@ -18,24 +12,48 @@ class Game:
         init game - supporting actions history and knight mode
         """
         self.fe = CLI()
+        self.conf = self.init_conf()
         self.board_history = []
         self.board = self.init_board()
         self.board_history.append(deepcopy(self.board))
         self.possible_directions = [(-1, 0), (0, +1), (+1, 0), (0, -1)]
         self.knight_directions = [(-2, +1), (-1, +2), (+1, +2), (+2, +1), (+2, -1), (+1, -2), (-1, -2), (-2, -1)]
         self.knight_mode = False
-        self.joker_cells = JOKER_CELLS
+        self.joker_cells = self.init_jokers()
+
+    def init_conf(self):
+        conf = self.fe.get_conf()
+        print(conf)
+
+        return conf
 
     def init_board(self):
         """
         create M*N board randomly values with the COLORS chars
         :return:
         """
-        msg = "Initializing board at size {}*{}\n".format(M, N)
+        m = self.conf['m']
+        n = self.conf['n']
+
+        msg = "Initializing board at size {}*{}\n".format(m, n)
         self.fe.print_msg(msg)
-        board = np.random.choice(COLORS, size=(M, N))
+        board = np.random.choice(self.conf['colors'], size=(m, n))
 
         return board
+
+    def init_jokers(self):
+        """
+        randomize jokers cells in the board
+        :return:
+        """
+        cells = []
+        for _ in range(self.conf['jokers']):
+            joker_i = np.random.choice(self.conf['m'])
+            joker_j = np.random.choice(self.conf['n'])
+
+            cells.append((joker_i, joker_j))
+
+        return cells
 
     def play(self):
         """
@@ -58,6 +76,9 @@ class Game:
             elif user_input == 'k':
                 # set knight mode - the alg. for color spreading is calculated via the knight steps
                 self.knight_mode = not self.knight_mode
+            elif user_input == 'q':
+                self.fe.print_msg("Good Bye!")
+                exit(0)
             else:
                 # spread colors to all the neighbors
                 self.spread_colors(user_input)
@@ -78,25 +99,28 @@ class Game:
         return eq
 
     def game_end(self, turn_current):
-        if turn_current <= WIN_TURNS:
+        if turn_current <= self.conf['win_turns']:
             self.fe.print_msg("Game Over, You Win!")
         else:
             self.fe.print_msg("Game Over, You Lose!")
 
     def get_user_input(self, turn_current):
         """
-        get char input from user, supports only COLORS values, u value - for undo, k value for knight mode
+        get char input from user, supports only COLORS values,
+        u value - for undo,
+        k value for knight mode,
+        q value - exit the game
         :param turn_current:
         :return:
         """
         is_input_valid = False
         while not is_input_valid:
             if self.knight_mode:
-                input_msg = "{0}/{1} Moves (knight mode). Insert color:".format(turn_current, WIN_TURNS)
+                input_msg = "{0}/{1} Moves (knight mode). Insert color:".format(turn_current, self.conf['win_turns'])
             else:
-                input_msg = "{0}/{1} Moves. Insert color:".format(turn_current, WIN_TURNS)
+                input_msg = "{0}/{1} Moves. Insert color:".format(turn_current, self.conf['win_turns'])
             user_input = self.fe.get_input(input_msg)
-            if user_input in COLORS or user_input == 'u' or user_input == 'k':
+            if user_input in self.conf['colors'] or user_input == 'u' or user_input == 'k' or user_input == 'q':
                 is_input_valid = True
                 self.fe.print_msg()
 
