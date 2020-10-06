@@ -41,3 +41,8 @@ optional arguments:
   -c, --colors      Game colors
   -j, --jokers      Number of joker cells
   ```
+
+
+## Advanced
+
+You may install the _Redis_  tool using `./install_redis.sh`, afterwards each game round's statistics will be dumped into it.
