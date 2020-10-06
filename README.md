@@ -1,6 +1,8 @@
 # Color Flood
 
 Color Flood is a 2D coloring game where cells are colored by their neighbours spread.
+![](game.gif)
+
 
 
 ## Game Rules
