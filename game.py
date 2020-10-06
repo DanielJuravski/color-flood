@@ -7,6 +7,7 @@ COLORS = ['r', 'b', 'g', 'y']
 COLORS_MAP = {'r': '\033[41m', 'b': '\033[44m', 'g': '\033[42m', 'y': '\033[43m'}
 CEND = '\033[0m'
 WIN_TURNS = 21
+JOKER_CELLS = [(1, 1), (2, 2)]
 
 
 class Game:
@@ -23,6 +24,7 @@ class Game:
         self.possible_directions = [(-1, 0), (0, +1), (+1, 0), (0, -1)]
         self.knight_directions = [(-2, +1), (-1, +2), (+1, +2), (+2, +1), (+2, -1), (+1, -2), (-1, -2), (-2, -1)]
         self.knight_mode = False
+        self.joker_cells = JOKER_CELLS
 
     def init_board(self):
         """
@@ -119,6 +121,10 @@ class Game:
         cells, _ = self.get_neighbors_to_color(0, 0, cands_approved, cands_declined)
 
         for (i, j) in cells:
+            if (i, j) in self.joker_cells:
+                neighbors = self.get_direct_neighbors(i, j)
+                for (n_i, n_j) in neighbors:
+                    self.board[n_i][n_j] = new_color
             self.board[i][j] = new_color
 
     def get_neighbors_to_color(self, i, j, cands_approved, cands_declined):
@@ -163,6 +169,31 @@ class Game:
                 continue
 
         return cands_approved, cands_declined
+
+    def get_direct_neighbors(self, i, j):
+        """
+        get direct neighbors via 4 close neighbors
+        :param i:
+        :param j:
+        :return:
+        """
+        neighbors = []
+        for cand_direction in self.possible_directions:
+            cand_i = i + cand_direction[0]
+            cand_j = j + cand_direction[1]
+
+            # try to access some i,j in the board matrix
+            try:
+                # cand i,j can be negative due to some directions - ignore them
+                if cand_i < 0 or cand_j < 0:
+                    continue
+            # that try should except on IndexError values
+            except IndexError as e:
+                continue
+
+            neighbors.append((cand_i, cand_j))
+
+        return neighbors
 
 
 def main():
