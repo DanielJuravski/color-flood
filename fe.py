@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import time
 
 COLORS_MAP = {'r': '\033[41m', 'b': '\033[44m', 'g': '\033[42m', 'y': '\033[43m'}
 CEND = '\033[0m'
@@ -18,13 +19,27 @@ class CLI:
 
         return user_input
 
-    def print_board(self, board):
+    def print_board(self, board, one_color=None):
         os.system('clear')
-        for row in board:
-            line = ["{0}  {1}".format(COLORS_MAP[j], CEND) for j in row]
-            for cell in line:
-                print(cell, end='')
-            print()
+
+        if one_color is None:
+            for row in board:
+                line = ["{0}  {1}".format(COLORS_MAP[j], CEND) for j in row]
+                for cell in line:
+                    print(cell, end='')
+                print()
+        else:
+            for row in board:
+                line = ["{0}  {1}".format(one_color, CEND) for j in row]
+                for cell in line:
+                    print(cell, end='')
+                print()
+
+    def game_over(self, board, msg):
+        for _, c in COLORS_MAP.items():
+            self.print_board(board, one_color=c)
+            self.print_msg(msg)
+            time.sleep(0.5)
 
     def get_conf(self):
         parser = argparse.ArgumentParser(description='Color Flood Game Configuration')

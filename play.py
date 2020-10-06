@@ -100,9 +100,10 @@ class Game:
 
     def game_end(self, turn_current):
         if turn_current <= self.conf['win_turns']:
-            self.fe.print_msg("Game Over, You Win!")
+            msg = "Game Over, You Win! (you made it with {}/{} moves)".format(turn_current, self.conf['win_turns'])
         else:
-            self.fe.print_msg("Game Over, You Lose!")
+            msg = "Game Over, You Lose! (you made it with {}/{} moves)".format(turn_current, self.conf['win_turns'])
+        self.fe.game_over(self.board, msg)
 
     def get_user_input(self, turn_current):
         """
