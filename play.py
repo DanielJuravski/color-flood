@@ -1,6 +1,9 @@
 import numpy as np
 from copy import deepcopy
+import redis
 from fe import CLI
+import datetime
+import uuid
 
 
 class Game:
@@ -20,6 +23,7 @@ class Game:
         self.knight_directions = [(-2, +1), (-1, +2), (+1, +2), (+2, +1), (+2, -1), (+1, -2), (-1, -2), (-2, -1)]
         self.knight_mode = False
         self.joker_cells = self.init_jokers()
+        self.db = self.init_db()
 
     def init_conf(self):
         conf = self.fe.get_conf()
@@ -54,6 +58,16 @@ class Game:
             cells.append((joker_i, joker_j))
 
         return cells
+
+    def init_db(self):
+        try:
+            r = redis.Redis()
+            r.ping()
+        except redis.exceptions.ConnectionError as e:
+            print(e)
+            r = False
+
+        return r
 
     def play(self):
         """
@@ -101,6 +115,10 @@ class Game:
     def game_end(self, turn_current):
         if turn_current <= self.conf['win_turns']:
             msg = "Game Over, You Win! (you made it with {}/{} moves)".format(turn_current, self.conf['win_turns'])
+            if self.db:
+                player_id, player_info = self.get_player_info(turn_current)
+                for k,v in player_info.items():
+                    self.db.hset(name=player_id, key=k, value=v)
         else:
             msg = "Game Over, You Lose! (you made it with {}/{} moves)".format(turn_current, self.conf['win_turns'])
         self.fe.game_over(self.board, msg)
@@ -212,6 +230,18 @@ class Game:
             neighbors.append((cand_i, cand_j))
 
         return neighbors
+
+    def get_player_info(self, turn_current):
+        player_id = str(uuid.uuid4())
+        info = dict()
+
+        info['now_date'] = str(datetime.date.today())
+        info['best'] = turn_current
+        info['win_turns'] = self.conf['win_turns']
+        info['m'] = self.conf['m']
+        info['n'] = self.conf['n']
+
+        return player_id, info
 
 
 def main():
