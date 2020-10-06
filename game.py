@@ -1,11 +1,10 @@
 import numpy as np
 from copy import deepcopy
+from fe import CLI
 
 M = 18
 N = 18
 COLORS = ['r', 'b', 'g', 'y']
-COLORS_MAP = {'r': '\033[41m', 'b': '\033[44m', 'g': '\033[42m', 'y': '\033[43m'}
-CEND = '\033[0m'
 WIN_TURNS = 21
 JOKER_CELLS = [(1, 1), (2, 2)]
 
@@ -18,6 +17,7 @@ class Game:
         """
         init game - supporting actions history and knight mode
         """
+        self.fe = CLI()
         self.board_history = []
         self.board = self.init_board()
         self.board_history.append(deepcopy(self.board))
@@ -31,9 +31,9 @@ class Game:
         create M*N board randomly values with the COLORS chars
         :return:
         """
-        print("Initializing board at size {}*{}".format(M, N))
+        msg = "Initializing board at size {}*{}\n".format(M, N)
+        self.fe.print_msg(msg)
         board = np.random.choice(COLORS, size=(M, N))
-        print()
 
         return board
 
@@ -43,7 +43,7 @@ class Game:
         :return:
         """
         turn_current = 0
-        self.print_board()
+        self.fe.print_board(self.board)
 
         # play until the game is end
         while not self.is_game_end():
@@ -64,7 +64,7 @@ class Game:
                 turn_current += 1
                 self.board_history.append(deepcopy(self.board))
 
-            self.print_board()
+            self.fe.print_board(self.board)
 
         self.game_end(turn_current)
 
@@ -79,9 +79,9 @@ class Game:
 
     def game_end(self, turn_current):
         if turn_current <= WIN_TURNS:
-            print("Game Over, You Win!")
+            self.fe.print_msg("Game Over, You Win!")
         else:
-            print("Game Over, You Lose!")
+            self.fe.print_msg("Game Over, You Lose!")
 
     def get_user_input(self, turn_current):
         """
@@ -95,19 +95,12 @@ class Game:
                 input_msg = "{0}/{1} Moves (knight mode). Insert color:".format(turn_current, WIN_TURNS)
             else:
                 input_msg = "{0}/{1} Moves. Insert color:".format(turn_current, WIN_TURNS)
-            user_input = input(input_msg)
+            user_input = self.fe.get_input(input_msg)
             if user_input in COLORS or user_input == 'u' or user_input == 'k':
                 is_input_valid = True
-                print()
+                self.fe.print_msg()
 
         return user_input
-
-    def print_board(self):
-        for row in self.board:
-            line = ["{0}  {1}".format(COLORS_MAP[j], CEND) for j in row]
-            for cell in line:
-                print(cell, end='')
-            print()
 
     def spread_colors(self, new_color):
         """
