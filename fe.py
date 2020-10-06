@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 
 COLORS_MAP = {'r': '\033[41m', 'b': '\033[44m', 'g': '\033[42m', 'y': '\033[43m'}
@@ -18,6 +19,7 @@ class CLI:
         return user_input
 
     def print_board(self, board):
+        os.system('clear')
         for row in board:
             line = ["{0}  {1}".format(COLORS_MAP[j], CEND) for j in row]
             for cell in line:
