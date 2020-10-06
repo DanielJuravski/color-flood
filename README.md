@@ -28,7 +28,7 @@ Color Flood is a 2D coloring game where cells are colored by their neighbours sp
     
 
 ## Usage
-`usage: game.py [-h] [-m] [-n] [-w --win-turns] [-c --colors] [-j --jokers]
+```usage: game.py [-h] [-m] [-n] [-w --win-turns] [-c --colors] [-j --jokers]
 
 Color Flood Game Configuration
 
@@ -38,7 +38,7 @@ optional arguments:
   -n                Number of columns in the board
   -w, --win-turns   Maximum number of turns to win
   -c, --colors      Game colors
-  -j, --jokers      Number of joker cells`
+  -j, --jokers      Number of joker cells```
 
 
  
