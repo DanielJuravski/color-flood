@@ -20,6 +20,8 @@ class Game:
         self.board = self.init_board()
         self.board_history.append(deepcopy(self.board))
         self.possible_directions = [(-1, 0), (0, +1), (+1, 0), (0, -1)]
+        self.knight_directions = [(-2, +1), (-1, +2), (+1, +2), (+2, +1), (+2, -1), (+1, -2), (-1, -2), (-2, -1)]
+        self.knight_mode = False
 
     def init_board(self):
         print("Initializing board at size {}*{}".format(M, N))
@@ -40,6 +42,8 @@ class Game:
                     self.board_history.pop()
                     self.board = deepcopy(self.board_history[-1])
                     turn_current -= 1
+            elif user_input == 'k':
+                self.knight_mode = not self.knight_mode
             else:
                 self.spread_colors(user_input)
                 turn_current += 1
@@ -63,8 +67,12 @@ class Game:
     def get_user_input(self, turn_current):
         is_input_valid = False
         while not is_input_valid:
-            user_input = input("{0}/{1} Moves. Insert color:".format(turn_current, WIN_TURNS))
-            if user_input in COLORS or user_input == 'u':
+            if self.knight_mode:
+                input_msg = "{0}/{1} Moves (knight mode). Insert color:".format(turn_current, WIN_TURNS)
+            else:
+                input_msg = "{0}/{1} Moves. Insert color:".format(turn_current, WIN_TURNS)
+            user_input = input(input_msg)
+            if user_input in COLORS or user_input == 'u' or user_input == 'k':
                 is_input_valid = True
 
         return user_input
@@ -86,7 +94,8 @@ class Game:
             self.board[i][j] = new_color
 
     def get_neighbors_to_color(self, i, j, cands_approved, cands_declined):
-        for cand_direction in self.possible_directions:
+        directions = self.possible_directions if self.knight_mode == False else self.knight_directions
+        for cand_direction in directions:
             cand_i = i + cand_direction[0]
             cand_j = j + cand_direction[1]
 
